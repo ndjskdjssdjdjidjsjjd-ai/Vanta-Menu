@@ -3,6 +3,7 @@
 #include <string>
 #include <typeinfo>
 #include <sstream>
+#include <type_traits>
 
 namespace VantaUtils {
     std::string getNodeName(cocos2d::CCNode* node);
@@ -11,9 +12,9 @@ namespace VantaUtils {
     void setNodeVisible(cocos2d::CCNode* node, bool visible);
 }
 
-#define public_cast(value, member) [](auto* v) { \
+#define public_cast(value, member) [](auto* v) -> auto& { \
     class FriendClass__; \
-    using T = std::remove_pointer<decltype(v)>::type; \
+    using T = typename std::remove_pointer<decltype(v)>::type; \
     class FriendeeClass__: public T { \
     protected: \
         friend FriendClass__; \
