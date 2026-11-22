@@ -1,0 +1,14 @@
+{
+  "geode": "v5.11.2",
+  "gd": {
+    "win": "2.208",
+    "android": "2.208",
+    "mac": "2.208",
+    "ios": "2.208"
+  },
+  "id": "ndjskdjssdjdjic.vanta-menu",
+  "name": "Vanta Menu",
+  "version": "v1.0.0",
+  "developers": ["ndjskdjssdjdjic"],
+  "description": "Custom mod menu for Geometry Dash 2.208."
+}
