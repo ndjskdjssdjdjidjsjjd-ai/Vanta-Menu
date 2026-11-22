@@ -1,7 +1,13 @@
 #include <Geode/Geode.hpp>
 #include <Geode/modify/CCKeyboardDispatcher.hpp>
 #include <imgui-cocos.hpp>
+#include <cstdio>
+#include <filesystem>
 #include "Cheats.hpp"
+
+#ifdef GEODE_IS_WINDOWS
+#include <Windows.h>
+#endif
 
 using namespace geode::prelude;
 
@@ -11,7 +17,7 @@ int currentTab = 0;
 static void setupStyle() {
     static bool applied = false;
     if (applied) return;
-    
+
     ImGuiStyle& style = ImGui::GetStyle();
     ImVec4* colors = style.Colors;
 
@@ -29,16 +35,23 @@ static void setupStyle() {
     style.ItemSpacing       = ImVec2(10.0f, 8.0f);
 
     ImGuiIO& io = ImGui::GetIO();
+    bool loadedFont = false;
+
+#ifdef GEODE_IS_WINDOWS
     char winDir[MAX_PATH];
     if (GetWindowsDirectoryA(winDir, MAX_PATH)) {
         std::string fontPath = std::string(winDir) + "\\Fonts\\arial.ttf";
         if (std::filesystem::exists(fontPath)) {
             io.Fonts->AddFontFromFileTTF(fontPath.c_str(), 18.0f);
-        } else {
-            io.Fonts->AddFontDefault();
+            loadedFont = true;
         }
     }
-    
+#endif
+
+    if (!loadedFont) {
+        io.Fonts->AddFontDefault();
+    }
+
     applied = true;
 }
 
@@ -56,11 +69,14 @@ $on_mod(Loaded) {
         }
 
         if (isMenuOpen) {
-            ImGui::SetNextWindowSize(ImVec2(560, 420), ImGuiCond_Always);
-            
+            ImVec2 display = ImGui::GetIO().DisplaySize;
+            float w = std::min(560.0f, display.x * 0.9f);
+            float h = std::min(420.0f, display.y * 0.85f);
+            ImGui::SetNextWindowSize(ImVec2(w, h), ImGuiCond_Always);
+
             if (ImGui::Begin("VantaMenu", &isMenuOpen, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize)) {
-                
-                ImGui::BeginChild("Sidebar", ImVec2(130, 0), true);
+                float sidebarW = std::min(130.0f, w * 0.25f);
+                ImGui::BeginChild("Sidebar", ImVec2(sidebarW, 0), true);
                 {
                     if (ImGui::Selectable("About", currentTab == 0)) currentTab = 0;
                     if (ImGui::Selectable("Main", currentTab == 1)) currentTab = 1;
@@ -82,7 +98,7 @@ $on_mod(Loaded) {
                         Cheats::draw();
                     } else if (currentTab == 2) {
                         ImGui::Spacing();
-                        
+
                         if (ImGui::Checkbox("Record Macro", &Cheats::isRecording)) {
                             if (Cheats::isRecording) {
                                 Cheats::pendingRestart = true;
@@ -93,7 +109,7 @@ $on_mod(Loaded) {
                         if (ImGui::Button("Save Macro")) {
                             Cheats::saveMacro();
                         }
-                        
+
                         ImGui::Spacing();
                         if (ImGui::Checkbox("Play Macro", &Cheats::isPlaying)) {
                             if (Cheats::isPlaying) {
@@ -105,27 +121,27 @@ $on_mod(Loaded) {
                             ImGui::SameLine();
                             ImGui::Text("Frame: %d / %d", Cheats::macroFrame, (int)Cheats::macroEvents.size());
                         }
-                        
+
                         ImGui::Spacing();
                         ImGui::InputText("Macro Name", Cheats::macroName, IM_ARRAYSIZE(Cheats::macroName));
-                        
+
                         ImGui::Spacing();
                         if (ImGui::Button("Refresh List")) {
                             Cheats::updateMacroList();
                         }
-                        
+
                         if (ImGui::BeginListBox("##MacroList", ImVec2(-FLT_MIN, 100))) {
-                            for (int i = 0; i < Cheats::macroList.size(); i++) {
+                            for (int i = 0; i < (int)Cheats::macroList.size(); i++) {
                                 const bool is_selected = (Cheats::selectedMacro == i);
                                 if (ImGui::Selectable(Cheats::macroList[i].c_str(), is_selected)) {
                                     Cheats::selectedMacro = i;
-                                    strcpy_s(Cheats::macroName, Cheats::macroList[i].c_str());
+                                    std::snprintf(Cheats::macroName, sizeof(Cheats::macroName), "%s", Cheats::macroList[i].c_str());
                                 }
                                 if (is_selected) ImGui::SetItemDefaultFocus();
                             }
                             ImGui::EndListBox();
                         }
-                        
+
                         if (ImGui::Button("Load Selected")) {
                             Cheats::loadMacro();
                         }
