@@ -10,21 +10,26 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-android64:
+  build:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [Android64, Win64, MacOS]
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Build Geode mod for Android64
+      - name: Build Geode mod for ${{ matrix.platform }}
         id: build
         uses: geode-sdk/build-geode-mod@main
         with:
-          target: Android64
+          target: ${{ matrix.platform }}
 
       - name: Upload built .geode artifact
         uses: actions/upload-artifact@v4
         with:
-          name: VantaMenu-Android64
+          name: VantaMenu-${{ matrix.platform }}
           path: ${{ steps.build.outputs.build-output }}
           
