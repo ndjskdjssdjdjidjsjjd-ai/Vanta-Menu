@@ -12,6 +12,7 @@ A free and open-source mod menu for Geometry Dash, built with Geode
 - **Macro System** 
 - **FPS / TPS Bypass** 
 - **Speedhack**
+- **And More...**
 
 ## How to Use
 
