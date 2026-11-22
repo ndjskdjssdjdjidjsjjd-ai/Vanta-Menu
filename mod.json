@@ -10,8 +10,5 @@
   "name": "Vanta Menu",
   "version": "v1.0.0",
   "developers": ["ndjskdjssdjdjic"],
-  "description": "Custom mod menu for Geometry Dash 2.2081.",
-  "dependencies": {
-    "geode-sdk.imgui-cocos": ">=1.0.0"
-  }
+  "description": "Custom mod menu for Geometry Dash 2.2081."
 }
